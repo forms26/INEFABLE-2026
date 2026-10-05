@@ -41,6 +41,7 @@ legend{font-family:Gelasio,Georgia,serif;font-size:1.3rem;padding:0;margin-botto
 .total{font-family:Gelasio,Georgia,serif;font-size:1.5rem;color:var(--vino)}
 .enviar{margin-top:16px;width:100%;font:inherit;font-weight:500;font-size:1.05rem;padding:14px;border:0;border-radius:6px;background:var(--vino);color:var(--crema);cursor:pointer}
 .enviar:disabled{opacity:.5;cursor:not-allowed}
+.cerrado{background:var(--crema);color:var(--tinta);border-radius:10px;padding:24px 20px;text-align:center;font-size:1.1rem}
 .msg{margin-top:12px;padding:12px;border-radius:6px;display:none}
 .msg.ok{display:block;background:#e3f1e0;color:#1d4a1a}
 .msg.error{display:block;background:#f8dede;color:#7a1414}
@@ -59,6 +60,10 @@ legend{font-family:Gelasio,Georgia,serif;font-size:1.3rem;padding:0;margin-botto
   </header>
 
   <img class="camisa" src="camisa.jpg" alt="Diseño de la camisa del Congreso INEFABLE, frente y espalda">
+
+  <div id="cerrado" class="cerrado" style="display:none">
+    <b>Los pedidos ya están cerrados.</b><br>El plazo terminó el sábado 10 de octubre.
+  </div>
 
   <form id="f" novalidate>
     <label class="nombre" for="nombre">Nombre de quien hace el pedido</label>
@@ -93,9 +98,13 @@ legend{font-family:Gelasio,Georgia,serif;font-size:1.3rem;padding:0;margin-botto
 // 1) Pega aquí la URL de la aplicación web de Apps Script (termina en /exec)
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbw_wUBfzNouOW8asDafh9KkoAag5i7C7oR03UwwZiOh669aRaL_rFd9z6jiWzEryYeH/exec";
 
+// Los pedidos se cierran el domingo 11 de octubre de 2026 a las 12:00 a. m. (hora de Honduras, GMT-6)
+const FECHA_LIMITE = new Date("2026-10-11T00:00:00-06:00");
+const cerrado = () => Date.now() >= FECHA_LIMITE.getTime();
+
 const MAX = 5, PRECIO = {nino: 150, adulto: 180};
 const TALLAS = {
-  nino: ["2","2T","4","6","8","10","12"],
+  nino: ["2","4","6","8","10","12"],
   adulto: ["S","M","L","XL","2XL","3XL","4XL","5XL"]
 };
 const sel = {}; // clave "nino|2T" -> cantidad
@@ -147,6 +156,7 @@ function pintar() {
 $("f").addEventListener("submit", async e => {
   e.preventDefault();
   const msg = $("msg"); msg.className = "msg";
+  if (cerrado()) { cerrarPedidos(); return; }
   const nombre = $("nombre").value.trim();
   if (!nombre) { msg.className = "msg error"; msg.textContent = "Escribe tu nombre para hacer el pedido."; $("nombre").focus(); return; }
   if (URL_SCRIPT.startsWith("PEGAR")) { msg.className = "msg error"; msg.textContent = "Falta conectar la página con Google Apps Script."; return; }
@@ -170,8 +180,14 @@ $("f").addEventListener("submit", async e => {
   $("btn").textContent = "Enviar pedido";
 });
 
+function cerrarPedidos() {
+  $("f").style.display = "none";
+  $("cerrado").style.display = "block";
+}
+
 dibujarTallas("nino", $("tn"));
 dibujarTallas("adulto", $("ta"));
+if (cerrado()) cerrarPedidos();
 </script>
 </body>
 </html>
