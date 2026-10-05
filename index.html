@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Congreso INEFABLE 2026 · Pedido de camisas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gelasio:wght@400;600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--vino:#5a0013;--vino-2:#7a0a22;--crema:#f7f1e8;--oro:#d9b45a;--oro-2:#b8862b;--tinta:#2a0a10}
+*{box-sizing:border-box}
+body{margin:0;font-family:Outfit,system-ui,sans-serif;background:var(--vino);color:var(--crema);line-height:1.5}
+.wrap{max-width:720px;margin:0 auto;padding:28px 18px 60px}
+header{text-align:center}
+header img.logo{width:min(260px,70%);height:auto}
+h1{font-family:Gelasio,Georgia,serif;font-weight:400;margin:10px 0 4px;line-height:1.05;font-size:clamp(2.2rem,9vw,3.6rem);letter-spacing:.02em}
+h1 small{display:block;font-size:.4em;letter-spacing:.35em;color:var(--oro);font-weight:400;margin-bottom:6px}
+.precios{display:flex;gap:12px;justify-content:center;margin:22px 0 8px;flex-wrap:wrap}
+.precio{border:1px solid var(--oro);border-radius:6px;padding:10px 22px;min-width:150px}
+.precio b{display:block;font-family:Gelasio,Georgia,serif;font-size:1.6rem;color:var(--oro);font-weight:600}
+.camisa{display:block;width:100%;border-radius:8px;margin:22px 0}
+form{background:var(--crema);color:var(--tinta);border-radius:10px;padding:24px 20px}
+label.nombre{display:block;font-weight:500;margin-bottom:6px}
+input[type=text]{width:100%;font:inherit;padding:12px;border:1px solid #c9b9a6;border-radius:6px;background:#fff}
+fieldset{border:0;padding:0;margin:26px 0 0}
+legend{font-family:Gelasio,Georgia,serif;font-size:1.3rem;padding:0;margin-bottom:2px}
+.nota{font-size:.9rem;color:#6b4a50;margin:0 0 12px}
+.tallas{display:flex;flex-wrap:wrap;gap:8px}
+.talla input{position:absolute;opacity:0}
+.talla span{display:inline-block;min-width:54px;text-align:center;padding:9px 12px;border:1px solid #b99;border-radius:6px;cursor:pointer;background:#fff;font-weight:500}
+.talla input:checked+span{background:var(--vino);border-color:var(--vino);color:var(--crema)}
+.talla input:focus-visible+span{outline:3px solid var(--oro-2);outline-offset:2px}
+.cantidades{margin-top:12px;display:grid;gap:8px}
+.fila{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#efe5d6;border-radius:6px;padding:8px 12px}
+.paso{display:flex;align-items:center;gap:6px}
+.paso button{width:36px;height:36px;border:1px solid var(--vino);background:#fff;border-radius:6px;font-size:1.2rem;cursor:pointer;color:var(--vino)}
+.paso output{min-width:28px;text-align:center;font-weight:500}
+.resumen{margin-top:26px;border-top:1px solid #c9b9a6;padding-top:16px}
+.resumen ul{margin:6px 0;padding-left:20px}
+.total{font-family:Gelasio,Georgia,serif;font-size:1.5rem;color:var(--vino)}
+.enviar{margin-top:16px;width:100%;font:inherit;font-weight:500;font-size:1.05rem;padding:14px;border:0;border-radius:6px;background:var(--vino);color:var(--crema);cursor:pointer}
+.enviar:disabled{opacity:.5;cursor:not-allowed}
+.msg{margin-top:12px;padding:12px;border-radius:6px;display:none}
+.msg.ok{display:block;background:#e3f1e0;color:#1d4a1a}
+.msg.error{display:block;background:#f8dede;color:#7a1414}
+@media (prefers-reduced-motion:no-preference){.fila{animation:in .2s ease-out}@keyframes in{from{opacity:0}to{opacity:1}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="logo.png" alt="Iglesia Misionera Refugio de Vida">
+    <h1><small>CONGRESO</small>INEFABLE 2026</h1>
+    <div class="precios">
+      <div class="precio">Camisa adulto<b>L. 180.00</b>c/u</div>
+      <div class="precio">Camisa niño<b>L. 150.00</b>c/u</div>
+    </div>
+  </header>
+
+  <img class="camisa" src="camisa.jpg" alt="Diseño de la camisa del Congreso INEFABLE, frente y espalda">
+
+  <form id="f" novalidate>
+    <label class="nombre" for="nombre">Nombre de quien hace el pedido</label>
+    <input type="text" id="nombre" autocomplete="name" required>
+
+    <fieldset>
+      <legend>Tallas de niños</legend>
+      <p class="nota">Marca cada talla que necesitas. Máximo 5 camisas por talla.</p>
+      <div class="tallas" id="tn"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Tallas de adultos</legend>
+      <p class="nota">Marca cada talla que necesitas. Máximo 5 camisas por talla.</p>
+      <div class="tallas" id="ta"></div>
+    </fieldset>
+
+    <div class="cantidades" id="cant" aria-live="polite"></div>
+
+    <div class="resumen">
+      <strong>Tu pedido</strong>
+      <ul id="lista"><li>Aún no has elegido tallas.</li></ul>
+      <div class="total">Total: L. <span id="total">0.00</span></div>
+    </div>
+
+    <button class="enviar" id="btn" type="submit" disabled>Enviar pedido</button>
+    <div class="msg" id="msg" role="status"></div>
+  </form>
+</div>
+
+<script>
+// 1) Pega aquí la URL de la aplicación web de Apps Script (termina en /exec)
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbw_wUBfzNouOW8asDafh9KkoAag5i7C7oR03UwwZiOh669aRaL_rFd9z6jiWzEryYeH/exec";
+
+const MAX = 5, PRECIO = {nino: 150, adulto: 180};
+const TALLAS = {
+  nino: ["2","2T","4","6","8","10","12"],
+  adulto: ["S","M","L","XL","2XL","3XL","4XL","5XL"]
+};
+const sel = {}; // clave "nino|2T" -> cantidad
+
+const $ = id => document.getElementById(id);
+const etiqueta = (tipo, t) => tipo === "nino" ? `talla ${t} de niño` : `talla ${t}`;
+
+function dibujarTallas(tipo, cont) {
+  TALLAS[tipo].forEach(t => {
+    const l = document.createElement("label");
+    l.className = "talla";
+    l.innerHTML = `<input type="checkbox" value="${t}"><span>${t}</span>`;
+    l.firstChild.addEventListener("change", e => {
+      const k = tipo + "|" + t;
+      if (e.target.checked) sel[k] = 1; else delete sel[k];
+      pintar();
+    });
+    cont.appendChild(l);
+  });
+}
+
+function pintar() {
+  const cant = $("cant"), lista = $("lista");
+  cant.innerHTML = ""; lista.innerHTML = "";
+  let total = 0, n = 0;
+  Object.keys(sel).forEach(k => {
+    const [tipo, t] = k.split("|");
+    const q = sel[k];
+    const fila = document.createElement("div");
+    fila.className = "fila";
+    fila.innerHTML = `<span>¿Cuántas de ${etiqueta(tipo, t)}?</span>
+      <span class="paso">
+        <button type="button" aria-label="Quitar una">−</button>
+        <output>${q}</output>
+        <button type="button" aria-label="Agregar una">+</button>
+      </span>`;
+    const [menos, mas] = fila.querySelectorAll("button");
+    menos.onclick = () => { if (sel[k] > 1) { sel[k]--; pintar(); } };
+    mas.onclick = () => { if (sel[k] < MAX) { sel[k]++; pintar(); } };
+    cant.appendChild(fila);
+    lista.innerHTML += `<li>${q} ${etiqueta(tipo, t)}</li>`;
+    total += q * PRECIO[tipo]; n += q;
+  });
+  if (!n) lista.innerHTML = "<li>Aún no has elegido tallas.</li>";
+  $("total").textContent = total.toFixed(2);
+  $("btn").disabled = !n;
+}
+
+$("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("msg"); msg.className = "msg";
+  const nombre = $("nombre").value.trim();
+  if (!nombre) { msg.className = "msg error"; msg.textContent = "Escribe tu nombre para hacer el pedido."; $("nombre").focus(); return; }
+  if (URL_SCRIPT.startsWith("PEGAR")) { msg.className = "msg error"; msg.textContent = "Falta conectar la página con Google Apps Script."; return; }
+  const items = Object.keys(sel).map(k => {
+    const [tipo, talla] = k.split("|");
+    return { tipo, talla, cantidad: sel[k] };
+  });
+  $("btn").disabled = true; $("btn").textContent = "Enviando…";
+  try {
+    await fetch(URL_SCRIPT, { method: "POST", mode: "no-cors",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify({ nombre, items }) });
+    msg.className = "msg ok";
+    msg.textContent = `¡Listo, ${nombre}! Tu pedido fue enviado.`;
+    $("f").reset(); Object.keys(sel).forEach(k => delete sel[k]); pintar();
+  } catch (err) {
+    msg.className = "msg error";
+    msg.textContent = "No se pudo enviar el pedido. Revisa tu conexión e inténtalo de nuevo.";
+    $("btn").disabled = false;
+  }
+  $("btn").textContent = "Enviar pedido";
+});
+
+dibujarTallas("nino", $("tn"));
+dibujarTallas("adulto", $("ta"));
+</script>
+</body>
+</html>
